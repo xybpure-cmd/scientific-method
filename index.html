@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scientific Method</title>
+  <style>
+    :root{--bg:#071022;--panel:#0d1b36;--line:#2d4b8f;--text:#eaf1ff;--muted:#9fb3de;--accent:#65a7ff;--ok:#73f0c4}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial;background:linear-gradient(135deg,#071022,#0b1a37 45%,#0a1328);color:var(--text)}
+    .wrap{display:grid;grid-template-columns:1.35fr 1fr;min-height:100vh}
+    .left,.right{padding:22px}
+    .left{border-right:1px solid var(--line)}
+    h1{margin:0;font-size:34px} .sub{color:#a9ffd8;font-weight:700} .cn{color:var(--muted)}
+    .principle{margin:14px 0;padding:12px;border:1px solid #3f67be;border-radius:10px;background:#102348;color:#d8e7ff}
+    .panel{background:rgba(13,27,54,.75);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:14px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}.btn{background:#163368;border:1px solid #3b68c2;color:#dfe9ff;padding:8px 12px;border-radius:10px;cursor:pointer}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),#7e8dff);color:#061127;font-weight:700}
+    textarea,input{width:100%;background:#09152c;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px}
+    .cards{display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:10px}.card{border:1px solid #395ca8;border-radius:10px;padding:10px;cursor:pointer;background:#0f2147}
+    .card.active{outline:2px solid var(--ok);background:#133058}
+    .timeline{display:flex;gap:8px;flex-wrap:wrap}.node{padding:6px 9px;border-radius:999px;border:1px solid #3558a0;color:#96addc}.node.on{background:#1a3f73;color:#dff3ff;border-color:#74eac0}
+    .log{max-height:190px;overflow:auto;display:grid;gap:8px}.msg{padding:10px;border-radius:10px;border:1px solid #355aa5;background:#102750}
+    .hint{color:#89a4dc;font-size:13px}.hidden{display:none}
+    .report pre{white-space:pre-wrap;color:#ddedff}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="left">
+    <h1>Scientific Method</h1>
+    <div class="sub">Start from a phenomenon. Build your own testable hypothesis.</div>
+    <div class="cn">从一个现象出发，形成你自己的可验证科学假设。</div>
+    <div class="principle">AI does not think for you. It helps you think like a scientist.<br><small>AI 不替你思考，而是帮助你像科学家一样思考。</small></div>
+    <div class="principle">AI does not give you the answer. It helps you build a better question and a testable hypothesis.</div>
+
+    <div class="panel">
+      <label><strong>Describe a phenomenon or question you are curious about.</strong></label>
+      <input id="phenomenon" value="Why are cities getting hotter in summer?" />
+      <div class="row" style="margin-top:10px"><button class="btn primary" id="start">Start Exploration</button><button class="btn" id="restart">Restart</button></div>
+    </div>
+
+    <div class="panel">
+      <strong>Mentor Interaction</strong>
+      <div id="log" class="log" style="margin-top:8px"></div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="btnClarify" disabled>Clarify research focus</button></div>
+    </div>
+
+    <div class="panel hidden" id="focusPanel"><strong>Which aspect do you want to investigate?</strong>
+      <div class="row" id="focusOptions" style="margin-top:8px"></div>
+      <div class="hint" id="questionOut"></div>
+    </div>
+
+    <div class="panel hidden" id="varPanel"><strong>Select variables (at least 2)</strong><div id="vars" class="cards" style="margin-top:8px"></div><div class="row" style="margin-top:10px"><button class="btn" id="btnVars" disabled>Select variables</button></div></div>
+    <div class="panel hidden" id="mechPanel"><strong>Compare mechanisms (multi-select)</strong><div id="mechs" class="cards" style="margin-top:8px"></div><div class="hint" style="margin-top:6px">Different mechanisms may work together. A good hypothesis should make clear which mechanism you want to test.</div><div class="row" style="margin-top:10px"><button class="btn" id="btnMech" disabled>Compare mechanisms</button></div></div>
+
+    <div class="panel hidden" id="hypPanel"><strong>Now write your own hypothesis. Use: If…, then…, because…</strong><textarea id="hyp1" placeholder="If ________, then ________, because ________." rows="3"></textarea><div class="row" style="margin-top:10px"><button class="btn" id="btnHyp">Submit My Hypothesis</button></div></div>
+
+    <div class="panel hidden" id="feedbackPanel"><strong>Mentor Feedback</strong><div id="feedback" class="msg" style="margin-top:8px"></div><textarea id="hyp2" placeholder="Revise your own hypothesis (V2)" rows="3"></textarea><div class="row" style="margin-top:10px"><button class="btn" id="btnRevise">Revise My Hypothesis</button></div></div>
+
+    <div class="panel hidden" id="planPanel"><strong>Validation plan</strong><div class="cards" id="planCards"></div><div class="row" style="margin-top:10px"><button class="btn" id="btnPlan">Build Validation Plan</button><button class="btn" id="btnReport">View Report</button></div></div>
+  </section>
+
+  <section class="right">
+    <div class="panel"><strong>Scientific Thinking Map</strong><div class="timeline" id="map" style="margin-top:10px"></div></div>
+    <div class="panel"><strong>Hypothesis Versions</strong><div class="msg" id="v1">Hypothesis V1: (pending)</div><div class="msg" id="fb">Mentor Feedback: (pending)</div><div class="msg" id="v2">Hypothesis V2: (pending)</div></div>
+    <div class="panel"><strong>Validation Path Card</strong><div id="valCard" class="msg">Object → Data → Method → Uncertainty</div></div>
+    <div class="panel report hidden" id="report"><strong>Scientific Exploration Report</strong><pre id="reportText"></pre></div>
+  </section>
+</div>
+<script>
+const state={step:0,focus:null,question:'',vars:[],mechs:[],hyp1:'',hyp2:'',plan:{object:[],data:[],method:[],uncertainty:[]}};
+const mapNames=['Phenomenon','Question','Variables','Mechanism','Hypothesis','Validation'];
+const focusMap={
+'Why the whole city is getting hotter':'How does urban land cover change relate to average summer temperature rise across a city?',
+'Why different areas have different temperatures':'How do land surface materials and green space coverage affect local temperature differences within a city?',
+'Why nights stay hotter in cities':'How do built surfaces and urban form influence night-time cooling rates in cities?',
+'Why people feel hotter in dense urban areas':'How do building density, shade, and airflow affect perceived heat in dense urban areas?'};
+const varDefs=[['Surface materials','Asphalt and concrete may absorb and store more heat than grass or water.'],['Green space coverage','Vegetation may cool local areas through shade and evaporation.'],['Building density','Dense blocks may trap heat and reduce ventilation.'],['Traffic and human activity','Vehicles and human systems may add extra heat.'],['Sunlight exposure','Different sun exposure can raise surface temperature.'],['Wind and ventilation','Airflow can help remove accumulated heat.'],['Night-time heat release','Stored daytime heat may be released more slowly at night.']];
+const mechDefs=['Hard surfaces may absorb more solar radiation','Reduced green space may weaken cooling through evaporation','Dense buildings may block wind and trap heat','Traffic and air conditioners may release extra heat'];
+const planOptions={object:['Downtown commercial area','Residential area','Urban park','Suburban area'],data:['Surface temperature','Air temperature','Green space coverage','Building density','Wind speed','Night-time cooling rate'],method:['Compare areas','Repeat measurements over several days','Control measurement time','Compare daytime and night-time temperatures'],uncertainty:['Weather differences','Measurement time','Traffic volume','Air conditioner heat release','Seasonal variation']};
+const $=id=>document.getElementById(id);
+function log(t){const d=document.createElement('div');d.className='msg';d.textContent=t;$('log').appendChild(d)}
+function renderMap(){const m=$('map');m.innerHTML='';mapNames.forEach((n,i)=>{const b=document.createElement('div');b.className='node'+(i<state.step?' on':'');b.textContent=n;m.appendChild(b)})}
+function mkCards(el,data,multi,target){el.innerHTML='';data.forEach(item=>{const [name,desc]=Array.isArray(item)?item:[item,''];const c=document.createElement('div');c.className='card';c.innerHTML='<strong>'+name+'</strong>'+(desc?'<div class="hint">'+desc+'</div>':'');c.onclick=()=>{if(multi){if(target.includes(name))target.splice(target.indexOf(name),1);else target.push(name);c.classList.toggle('active');}else{target.splice(0,target.length,name);[...el.children].forEach(x=>x.classList.remove('active'));c.classList.add('active');}updateButtons();};el.appendChild(c);});}
+function updateButtons(){ $('btnVars').disabled=state.vars.length<2; $('btnMech').disabled=state.mechs.length<1; }
+$('start').onclick=()=>{state.step=1;log('You are observing: '+$('phenomenon').value);log('Mentor: I will not answer for you. I will help you clarify and narrow your research path.');$('btnClarify').disabled=false;renderMap();};
+$('btnClarify').onclick=()=>{$('focusPanel').classList.remove('hidden');state.step=2;renderMap();const opts=Object.keys(focusMap);const wrap=$('focusOptions');wrap.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='btn';b.textContent=o;b.onclick=()=>{state.focus=o;state.question=focusMap[o];$('questionOut').textContent='Scientific question: '+state.question;$('varPanel').classList.remove('hidden');state.step=3;renderMap();mkCards($('vars'),varDefs,true,state.vars);};wrap.appendChild(b);});};
+$('btnVars').onclick=()=>{$('mechPanel').classList.remove('hidden');state.step=4;renderMap();mkCards($('mechs'),mechDefs,true,state.mechs);};
+$('btnMech').onclick=()=>{$('hypPanel').classList.remove('hidden');state.step=5;renderMap();};
+$('btnHyp').onclick=()=>{state.hyp1=$('hyp1').value.trim();if(!state.hyp1)return alert('Please write your own hypothesis first.');$('v1').textContent='Hypothesis V1: '+state.hyp1;const fb='Is the hypothesis clear? Are variables observable? Is outcome measurable? What alternative explanations may exist? What evidence would be needed?';$('feedback').textContent=fb;$('fb').textContent='Mentor Feedback: '+fb;$('feedbackPanel').classList.remove('hidden');};
+$('btnRevise').onclick=()=>{state.hyp2=$('hyp2').value.trim();if(!state.hyp2)return alert('Please revise hypothesis yourself.');$('v2').textContent='Hypothesis V2: '+state.hyp2;$('planPanel').classList.remove('hidden');state.step=6;renderMap();const pc=$('planCards');pc.innerHTML='';Object.entries(planOptions).forEach(([k,arr])=>{const box=document.createElement('div');box.className='card';box.innerHTML='<strong>'+k.toUpperCase()+'</strong>';arr.forEach(v=>{const id=k+'-'+v;const line=document.createElement('label');line.style.display='block';line.innerHTML='<input type="checkbox" data-k="'+k+'" value="'+v+'"> '+v;box.appendChild(line);});pc.appendChild(box);});};
+$('btnPlan').onclick=()=>{state.plan={object:[],data:[],method:[],uncertainty:[]};document.querySelectorAll('#planCards input:checked').forEach(i=>state.plan[i.dataset.k].push(i.value));$('valCard').textContent='Object: '+state.plan.object.join(', ')+'\nData: '+state.plan.data.join(', ')+'\nMethod: '+state.plan.method.join(', ')+'\nUncertainty: '+state.plan.uncertainty.join(', ');};
+$('btnReport').onclick=()=>{const t=`You have completed a scientific exploration from phenomenon to hypothesis.\n\nOriginal phenomenon: ${$('phenomenon').value}\nResearch focus: ${state.focus}\nScientific question: ${state.question}\nKey variables selected by the user: ${state.vars.join(', ')}\nPossible mechanisms selected by the user: ${state.mechs.join(', ')}\nUser hypothesis V1: ${state.hyp1}\nMentor feedback: ${$('feedback').textContent}\nUser revised hypothesis V2: ${state.hyp2}\nValidation plan: ${$('valCard').textContent.replace(/\n/g,' | ')}\nRemaining uncertainties: ${state.plan.uncertainty.join(', ')}\n\nThis is not a final answer. It is a starting point for real scientific inquiry.`;$('report').classList.remove('hidden');$('reportText').textContent=t;};
+$('restart').onclick=()=>location.reload();
+renderMap();
+</script>
+</body></html>
